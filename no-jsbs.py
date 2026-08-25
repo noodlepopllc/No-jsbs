@@ -102,12 +102,12 @@ def compile_site(siteurl='yourwebsite.com'):
         print(f" -> Extracting and Compiling parameters for {filename}...")
         title = extract_title_via_python(raw_markdown, slug)
         
-        # 1. Render the base Markdown content to HTML
-        html_body_static = markdown.markdown(raw_markdown)
+        # 1. This is your raw, beautiful HTML body (already optimized for index.php)
+        html_body_php = markdown.markdown(raw_markdown)
         
-        # 💡 THE FIX: Use Regex to create a secondary HTML body specifically for your PHP root file.
-        # This replaces <img src="../images/..." with <img src="images/..." on the fly.
-        html_body_php = re.sub(r'src=["\']\.\./images/(.*?)["\']', r'src="images/\1"', html_body_static)
+        # 💡 THE REVERSE PATCH: Find src="images/..." and convert it to src="../images/..." 
+        # specifically for the physical standalone pages inside the /docs folder!
+        html_body_static = re.sub(r'src=["\']images/(.+?)["\']', r'src="../images/\1"', html_body_php)
         
         if "-NORSS" in filename:
             summary = "Direct access document utility layout."
