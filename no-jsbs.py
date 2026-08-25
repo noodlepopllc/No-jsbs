@@ -103,7 +103,8 @@ def compile_site(siteurl='yourwebsite.com'):
         title = extract_title_via_python(raw_markdown, slug)
         
         # 1. This is your raw, beautiful HTML body (already optimized for index.php)
-        html_body_php = markdown.markdown(raw_markdown)
+        #html_body_php = markdown.markdown(raw_markdown)
+        html = markdown.markdown(raw_markdown, extensions=['fenced_code'])
         
         # 💡 THE REVERSE PATCH: Find src="images/..." and convert it to src="../images/..." 
         # specifically for the physical standalone pages inside the /docs folder!
