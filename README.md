@@ -6,7 +6,7 @@ The local AI-powered static site compiler with absolutely zero JavaScript bullsh
 
 ## 💎 Features
 - **100% No-JS**: Zero hydration, zero script tag injection, zero front-end overhead.
-- **Local AI Compiling**: Uses `SmolLM-1.7B-Instruct` locally to generate titles and search summaries.
+- **Local AI Compiling**: Uses `HuggingFaceTB/SmolLM3-3B` locally to generate titles and search summaries.
 - **True Static Leaves**: Content files are standard compiled standalone HTML layout structures.
 - **Hybrid Performance**: PHP handles structural layout framing and dynamic keyword searches without bloat.
 
