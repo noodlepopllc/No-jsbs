@@ -26,20 +26,13 @@ def generate_static_rss_feed(db_path="site.db", posts_folder="posts", output_fil
         print("ℹ No RSS-eligible posts found in search_index. Skipping feed step.")
         return
 
-    # Explicitly register the namespace prefix with Python's XML engine
+    # Explicitly register the namespace prefixes with Python's XML engine globally
     ET.register_namespace('content', 'http://purl.org')
     ET.register_namespace('atom', 'http://w3.org')
 
     # 2. Build out the structured XML document object
-    # FIX: Pass namespaces cleanly as valid Python keyword parameters
-    rss = ET.Element(
-        "rss", 
-        version="2.0", 
-        attrib={
-            "xmlns:atom": "http://w3.org",
-            "xmlns:content": "http://purl.org"
-        }
-    )
+    # FIX: Remove the manual 'attrib' dictionary completely so properties don't double up
+    rss = ET.Element("rss", version="2.0")
     channel = ET.SubElement(rss, "channel")
     
     ET.SubElement(channel, "title").text = "No-jsbs Blog"
@@ -72,8 +65,8 @@ def generate_static_rss_feed(db_path="site.db", posts_folder="posts", output_fil
         
         # Parse timestamp string or fall back to system execution time if empty
         try:
-            date_cleaned = post['created_at'].split(" ")[0]  # Isolate YYYY-MM-DD safely
-            dt = datetime.strptime(date_cleaned, "%Y-%m-%d")
+            date_cleaned = post['created_at'].split(" ")  # Isolate YYYY-MM-DD safely
+            dt = datetime.strptime(date_cleaned[0], "%Y-%m-%d")
             pub_date_str = dt.strftime("%a, %d %b %Y %H:%M:%S GMT")
         except Exception:
             pub_date_str = datetime.now().strftime("%a, %d %b %Y %H:%M:%S GMT")
