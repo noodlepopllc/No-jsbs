@@ -16,12 +16,6 @@ $sidebar_results = $db->query("SELECT title, slug, url FROM search_index ORDER B
     <link rel="alternate" type="application/rss+xml" href="feed.php" title="RSS Feed">
 </head>
 <body>
-
-<div class="layout">
-    <!-- 🎛️ SIDEBAR NAV PORTAL -->
-    <aside class="sidebar">
-        <h2><a href="index.php">no-jsbs Dashboard</a></h2>
-        <a href="feed.php" target="_blank" class="rss-link">📡 Subscribe via RSS XML</a>
         <header class="site-header">
             <div class="logo">
                 <a href="index.php">No-jsbs</a>
@@ -33,6 +27,12 @@ $sidebar_results = $db->query("SELECT title, slug, url FROM search_index ORDER B
                 </a>
             </nav>
         </header>
+
+<div class="layout">
+    <!-- 🎛️ SIDEBAR NAV PORTAL -->
+    <aside class="sidebar">
+        <h2><a href="index.php">no-jsbs Dashboard</a></h2>
+        <a href="feed.php" target="_blank" class="rss-link">📡 Subscribe via RSS XML</a>
 
         <form method="GET" action="index.php" class="search-form">
             <input type="text" name="q" class="search-input" placeholder="Search summaries..." value="<?php echo htmlspecialchars($search ?? ''); ?>">
