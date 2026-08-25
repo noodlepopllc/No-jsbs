@@ -81,18 +81,6 @@ Sitemap: {siteurl}'''
     if not robot.exists():
         robot.write_text(content)
 
-def compile_site(siteurl='yourwebsite.com'):
-    os.makedirs(POSTS_DIR, exist_ok=True)
-    os.makedirs(DOCS_DIR, exist_ok=True)
-    add_robot(siteurl)
-    conn = setup_database()
-    cursor = conn.cursor()
-    
-    files = [f for f in os.listdir(POSTS_DIR) if f.endswith('.md')]
-    if not files:
-        print("ℹ️ No markdown files found inside /posts.")
-        return
-
     for filename in files:
         slug = filename.replace('.md', '')
         url = f"docs/{slug}.html"
@@ -101,7 +89,13 @@ def compile_site(siteurl='yourwebsite.com'):
         
         print(f" -> Extracting and Compiling parameters for {filename}...")
         title = extract_title_via_python(raw_markdown, slug)
-        html_body = markdown.markdown(raw_markdown)
+        
+        # 1. Render the base Markdown content to HTML
+        html_body_static = markdown.markdown(raw_markdown)
+        
+        # 💡 THE FIX: Use Regex to create a secondary HTML body specifically for your PHP root file.
+        # This replaces <img src="../images/..." with <img src="images/..." on the fly.
+        html_body_php = re.sub(r'src=["\']\.\./images/(.*?)["\']', r'src="images/\1"', html_body_static)
         
         if "-NORSS" in filename:
             summary = "Direct access document utility layout."
@@ -110,16 +104,13 @@ def compile_site(siteurl='yourwebsite.com'):
             print(f"    🤫 Excluding {filename} from active RSS feed stream.")
         else:
             is_rss_visible = 1
+            summary_prompt = f"Read this article text and write a short, 2-sentence summary overview for a search index list:\n\n{raw_markdown}"
+            summary = ask_smol_raw_text(summary_prompt, max_tokens=80)
             
-            # System instructions block structural rules firmly
-            sys_summary = "You are a factual summarization utility. Write a short, two-sentence summary of the text."
-            summary = ask_smol_raw_text(sys_summary, raw_markdown, max_tokens=80)
-            
-            sys_keywords = "You are a metadata indexing tool. Output exactly 5 words found in the text separated only by commas."
-            keywords = ask_smol_raw_text(sys_keywords, raw_markdown, max_tokens=40)
+            keywords_prompt = f"Read this article text and output exactly 5 relevant keywords for a metadata search engine, separated only by commas:\n\n{raw_markdown}"
+            keywords = ask_smol_raw_text(keywords_prompt, max_tokens=40)
         
-        # Write individual static file
-                # 2. Write the 100% standalone physical static leaf file
+        # 2. Write the physical static file using the standard relative links (../images/)
         full_html_page = f"""<!DOCTYPE html>
 <html lang='en'>
 <head>
@@ -135,17 +126,7 @@ def compile_site(siteurl='yourwebsite.com'):
     .back-btn {{ display: inline-block; margin-bottom: 32px; font-size: 0.95rem; font-weight: 500; }}
     h1 {{ font-size: 2.5rem; font-weight: 800; letter-spacing: -0.03em; margin-bottom: 8px; }}
     hr {{ border: 0; border-top: 1px solid var(--border); margin: 32px 0; }}
-    
-    /* 🖼️ FLUID IMAGE CONSTRAINT: Solves the huge image problem instantly */
-    article img {{
-        max-width: 100%;
-        height: auto;
-        display: block;
-        margin: 32px auto;
-        border-radius: 8px;
-        border: 1px solid var(--border);
-    }}
-    
+    article img {{ max-width: 100%; height: auto; display: block; margin: 32px auto; border-radius: 8px; border: 1px solid var(--border); }}
     pre {{ background-color: var(--code-bg); padding: 16px; border-radius: 8px; border: 1px solid var(--border); overflow-x: auto; font-size: 0.9rem; }}
     code {{ font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; background-color: var(--code-bg); padding: 2px 6px; border-radius: 4px; font-size: 0.9em; }}
     pre code {{ padding: 0; background-color: transparent; border-radius: 0; }}
@@ -156,19 +137,19 @@ def compile_site(siteurl='yourwebsite.com'):
 <body>
 <p><a href='index.html' class='back-btn'>← Back to Static Library Archive</a></p>
 <article>
-{html_body}
+{html_body_static}
 </article>
 </body>
 </html>"""
-
         with open(os.path.join(DOCS_DIR, f"{slug}.html"), "w", encoding="utf-8") as f:
             f.write(full_html_page)
             
+        # 3. Cache everything inside SQLite, passing the cleaned PHP body (images/) instead
         today_date = datetime.date.today().isoformat()
         cursor.execute("""
             INSERT OR REPLACE INTO search_index (title, slug, url, description, keywords, html_body, is_rss, created_at)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-        """, (title, slug, url, summary, keywords, html_body, is_rss_visible, today_date))
+        """, (title, slug, url, summary, keywords, html_body_php, is_rss_visible, today_date))
         
     # Generate standalone index directory (docs/index.html) safely via unpacked tuples
     cursor.execute("SELECT title, url, description, created_at FROM search_index ORDER BY created_at DESC")
