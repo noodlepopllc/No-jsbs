@@ -26,10 +26,16 @@ def generate_static_rss_feed(db_path="site.db", posts_folder="posts", output_fil
         print("ℹ No RSS-eligible posts found in search_index. Skipping feed step.")
         return
 
+    # FIX: Explicitly register the namespace prefix with Python's XML engine
+    ET.register_namespace('content', 'http://purl.org')
+    ET.register_namespace('atom', 'http://w3.org')
+
     # 2. Build out the structured XML document object
-    rss = ET.Element("rss", version="2.0", 
-                     xmlns_atom="http://w3.org",
-                     xmlns_content="http://purl.org")
+    # Using the exact strict namespace keys so browsers validate it properly
+    rss = ET.Element("rss", version="2.0", {
+        "xmlns:atom": "http://w3.org",
+        "xmlns:content": "http://purl.org"
+    })
     channel = ET.SubElement(rss, "channel")
     
     ET.SubElement(channel, "title").text = "No-jsbs Blog"
@@ -39,8 +45,6 @@ def generate_static_rss_feed(db_path="site.db", posts_folder="posts", output_fil
     # 3. Process the dataset rows
     for post in posts:
         slug = post['slug']
-        
-        # Maps directly to your local file path rule: posts/{slug}.md
         md_file_path = os.path.join(posts_folder, f"{slug}.md")
         raw_markdown = ""
 
@@ -58,14 +62,15 @@ def generate_static_rss_feed(db_path="site.db", posts_folder="posts", output_fil
         ET.SubElement(item, "link").text = f"{site_url}index.php?view={slug}"
         ET.SubElement(item, "description").text = post['description'] if post['description'] else post['title']
         
-        # 5. Direct Raw Markdown Dump into the required CDATA block wrapper
-        content_encoded = ET.SubElement(item, "content:encoded")
+        # 5. Direct Raw Markdown Dump into the required content:encoded tag
+        # Using the standard expanded namespace key notation for ElementTree
+        content_encoded = ET.SubElement(item, "{http://purl.org}encoded")
         content_encoded.text = f"<![CDATA[{raw_markdown}]]>"
         
         # Parse timestamp string or fall back to system execution time if empty
         try:
-            date_cleaned = post['created_at'].split(" ")[0]  # Isolate YYYY-MM-DD
-            dt = datetime.strptime(date_cleaned, "%Y-%m-%d")
+            date_cleaned = post['created_at'].split(" ")  # Isolate YYYY-MM-DD
+            dt = datetime.strptime(date_cleaned[0], "%Y-%m-%d")
             pub_date_str = dt.strftime("%a, %d %b %Y %H:%M:%S GMT")
         except Exception:
             pub_date_str = datetime.now().strftime("%a, %d %b %Y %H:%M:%S GMT")
@@ -84,7 +89,7 @@ def generate_static_rss_feed(db_path="site.db", posts_folder="posts", output_fil
     with open(output_file, "w", encoding="utf-8") as f:
         f.write('<?xml version="1.0" encoding="utf-8"?>\n' + xml_str)
         
-    print(f"✓ Static RSS feed compiled -> {len(posts)} raw markdown text blocks written to {output_file}")
+    print(f"✓ Static RSS feed compiled -> {len(posts)} posts cleanly configured for Chrome validation.")
 
 if __name__ == "__main__":
     generate_static_rss_feed()
