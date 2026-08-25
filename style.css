@@ -224,3 +224,13 @@ body {
     font-size: 0.9em;
 }
 
+.prose-content img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 32px auto;
+    border-radius: 8px;
+    border: 1px solid var(--border-ui);
+}
+
+

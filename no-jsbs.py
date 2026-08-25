@@ -119,7 +119,48 @@ def compile_site(siteurl='yourwebsite.com'):
             keywords = ask_smol_raw_text(sys_keywords, raw_markdown, max_tokens=40)
         
         # Write individual static file
-        full_html_page = f"""<!DOCTYPE html>\n<html lang='en'>\n<head>\n<meta charset='UTF-8'>\n<title>{title}</title>\n<style>body {{ font-family: sans-serif; padding: 40px; max-width: 800px; margin: 0 auto; line-height: 1.6; }}</style>\n<link rel="alternate" type="text/markdown" href="../posts/{slug}.md" title="Raw Markdown Version">\n</head>\n<body>\n<p><a href='index.html'>← Back to Static Library Archive</a></p>\n<article>\n{html_body}\n</article>\n</body>\n</html>"""
+                # 2. Write the 100% standalone physical static leaf file
+        full_html_page = f"""<!DOCTYPE html>
+<html lang='en'>
+<head>
+<meta charset='UTF-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0'>
+<title>{title}</title>
+<style>
+    :root {{ --bg: #ffffff; --text: #18181b; --code-bg: #f4f4f5; --border: #e4e4e7; --link: #2563eb; }}
+    @media (prefers-color-scheme: dark) {{ :root {{ --bg: #09090b; --text: #f4f4f5; --code-bg: #18181b; --border: #27272a; --link: #60a5fa; }} }}
+    body {{ font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: var(--bg); color: var(--text); line-height: 1.7; padding: 40px 24px; max-width: 800px; margin: 0 auto; font-size: 1.1rem; }}
+    a {{ color: var(--link); text-decoration: none; }}
+    a:hover {{ text-decoration: underline; }}
+    .back-btn {{ display: inline-block; margin-bottom: 32px; font-size: 0.95rem; font-weight: 500; }}
+    h1 {{ font-size: 2.5rem; font-weight: 800; letter-spacing: -0.03em; margin-bottom: 8px; }}
+    hr {{ border: 0; border-top: 1px solid var(--border); margin: 32px 0; }}
+    
+    /* 🖼️ FLUID IMAGE CONSTRAINT: Solves the huge image problem instantly */
+    article img {{
+        max-width: 100%;
+        height: auto;
+        display: block;
+        margin: 32px auto;
+        border-radius: 8px;
+        border: 1px solid var(--border);
+    }}
+    
+    pre {{ background-color: var(--code-bg); padding: 16px; border-radius: 8px; border: 1px solid var(--border); overflow-x: auto; font-size: 0.9rem; }}
+    code {{ font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; background-color: var(--code-bg); padding: 2px 6px; border-radius: 4px; font-size: 0.9em; }}
+    pre code {{ padding: 0; background-color: transparent; border-radius: 0; }}
+</style>
+<link rel="alternate" type="text/markdown" href="../posts/{slug}.md" title="Raw Markdown Version">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://w3.org' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
+</head>
+<body>
+<p><a href='index.html' class='back-btn'>← Back to Static Library Archive</a></p>
+<article>
+{html_body}
+</article>
+</body>
+</html>"""
+
         with open(os.path.join(DOCS_DIR, f"{slug}.html"), "w", encoding="utf-8") as f:
             f.write(full_html_page)
             
