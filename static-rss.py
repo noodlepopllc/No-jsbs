@@ -1,14 +1,13 @@
 #!/usr/bin/env python3
 import os
 import sqlite3
-import markdown
 import xml.etree.ElementTree as ET
 from datetime import datetime
 
 def generate_static_rss_feed(db_path="site.db", posts_folder="posts", output_file="feed.xml"):
     site_url = "https://noodle-pop.com"
     
-    # 1. Connect to site.db and query eligible RSS rows to find the exact filenames
+    # 1. Connect to site.db and query rows from search_index
     conn = sqlite3.connect(db_path)
     conn.row_factory = sqlite3.Row
     cursor = conn.cursor()
@@ -24,7 +23,7 @@ def generate_static_rss_feed(db_path="site.db", posts_folder="posts", output_fil
     conn.close()
 
     if not posts:
-        print("ℹ No RSS-eligible posts found in database. Skipping feed step.")
+        print("ℹ No RSS-eligible posts found in search_index. Skipping feed step.")
         return
 
     # 2. Build out the structured XML document object
@@ -37,53 +36,35 @@ def generate_static_rss_feed(db_path="site.db", posts_folder="posts", output_fil
     ET.SubElement(channel, "link").text = site_url
     ET.SubElement(channel, "description").text = "A fast, zero-javascript minimalist development blog."
 
-    # 3. Process the dataset rows by reading the actual local filesystem Markdown files
+    # 3. Process the dataset rows
     for post in posts:
         slug = post['slug']
-        md_filename = f"{slug}.md"
-        md_file_path = os.path.join(posts_folder, md_filename)
         
-        # Fallback raw markdown content placeholder
+        # Maps directly to your local file path rule: posts/{slug}.md
+        md_file_path = os.path.join(posts_folder, f"{slug}.md")
         raw_markdown = ""
-        
-        # Read the actual physical markdown file contents
+
+        # Read the raw physical markdown file exactly as it sits on disk
         if os.path.exists(md_file_path):
             with open(md_file_path, "r", encoding="utf-8") as f:
-                raw_content = f.read()
-                
-                # Check for and strip the YAML front-matter metadata block if it exists
-                if raw_content.startswith("---"):
-                    parts = raw_content.split("---", 2)
-                    if len(parts) >= 3:
-                        raw_markdown = parts[2].strip()
-                    else:
-                        raw_markdown = raw_content.strip()
-                else:
-                    raw_markdown = raw_content.strip()
+                raw_markdown = f.read()
         else:
-            print(f"⚠ Warning: Could not find physical markdown file at {md_file_path}")
+            print(f"⚠ Warning: Could not find raw file at {md_file_path}")
             continue
 
-        # 4. Compile the raw markdown content cleanly to standard HTML for the RSS reader layout
-        compiled_html = markdown.markdown(raw_markdown, extensions=['fenced_code', 'codehilite'])
-        
-        # 5. Resolve relative path structures to absolute domain URLs
-        absolute_html = compiled_html.replace('href="index.php', f'href="{site_url}index.php')
-        absolute_html = absolute_html.replace('src="', f'src="{site_url}')
-
-        # 6. Populate standard RSS node attributes
+        # 4. Populate standard RSS node attributes
         item = ET.SubElement(channel, "item")
         ET.SubElement(item, "title").text = post['title']
         ET.SubElement(item, "link").text = f"{site_url}index.php?view={slug}"
         ET.SubElement(item, "description").text = post['description'] if post['description'] else post['title']
         
-        # Pack the clean raw compiled file data directly into the required CDATA block
+        # 5. Direct Raw Markdown Dump into the required CDATA block wrapper
         content_encoded = ET.SubElement(item, "content:encoded")
-        content_encoded.text = f"<![CDATA[{absolute_html}]]>"
+        content_encoded.text = f"<![CDATA[{raw_markdown}]]>"
         
         # Parse timestamp string or fall back to system execution time if empty
         try:
-            date_cleaned = post['created_at'].split(" ")[0]  # Isolate YYYY-MM-DD string
+            date_cleaned = post['created_at'].split(" ")[0]  # Isolate YYYY-MM-DD
             dt = datetime.strptime(date_cleaned, "%Y-%m-%d")
             pub_date_str = dt.strftime("%a, %d %b %Y %H:%M:%S GMT")
         except Exception:
@@ -92,18 +73,18 @@ def generate_static_rss_feed(db_path="site.db", posts_folder="posts", output_fil
         ET.SubElement(item, "pubDate").text = pub_date_str
         ET.SubElement(item, "guid").text = f"{site_url}index.php?view={slug}"
 
-    # 7. Generate text and clean string characters
+    # 6. Generate text and clean string characters
     tree = ET.ElementTree(rss)
     ET.indent(tree, space="  ", level=0)
     
     xml_str = ET.tostring(rss, encoding="utf-8").decode("utf-8")
     xml_str = xml_str.replace("&lt;![CDATA[", "<![CDATA[").replace("]]&gt;", "]]>")
     
-    # 8. Physical disk deployment step
+    # 7. Physical disk deployment step
     with open(output_file, "w", encoding="utf-8") as f:
         f.write('<?xml version="1.0" encoding="utf-8"?>\n' + xml_str)
         
-    print(f"✓ Static RSS feed compiled cleanly -> {len(posts)} markdown file dumps written to {output_file}")
+    print(f"✓ Static RSS feed compiled -> {len(posts)} raw markdown text blocks written to {output_file}")
 
 if __name__ == "__main__":
     generate_static_rss_feed()
