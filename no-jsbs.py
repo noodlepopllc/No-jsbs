@@ -117,10 +117,10 @@ def compile_site(siteurl='yourwebsite.com'):
         else:
             is_rss_visible = 1
             summary_prompt = f"Read this article text and write a short, 2-sentence summary overview for a search index list:\n\n{raw_markdown}"
-            summary = ask_smol_raw_text(summary_prompt, max_tokens=80)
+            summary = ask_smol_raw_text(summary_prompt, raw_markdown, max_tokens=80)
             
             keywords_prompt = f"Read this article text and output exactly 5 relevant keywords for a metadata search engine, separated only by commas:\n\n{raw_markdown}"
-            keywords = ask_smol_raw_text(keywords_prompt, max_tokens=40)
+            keywords = ask_smol_raw_text(keywords_prompt, raw_markdown, max_tokens=40)
         
         # 2. Write the physical static file using the standard relative links (../images/)
         full_html_page = f"""<!DOCTYPE html>
