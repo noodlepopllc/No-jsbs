@@ -66,9 +66,6 @@ $sidebar_results = $db->query("SELECT title, slug, url FROM search_index ORDER B
                     <?php echo $post['html_body']; ?>
                 </article>
                 <header class="site-header">
-                    <div class="logo">
-                        <a href="index.php">No-jsbs</a>
-                    </div>
                     <nav class="main-nav">
                         <!-- Clean, permanent entry point to your public timeline -->
                         <a href="https://x.com" target="_blank" rel="noopener noreferrer" class="nav-social">
