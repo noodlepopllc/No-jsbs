@@ -72,4 +72,4 @@ Because your Python Markdown engine respects valid HTML elements, you can drop r
 
 🚀 Writing Tip for Your First Server Article
 
-When composing your first post about building the no-jsbs environment, use plenty of lists and clear code block frames. Your SmolLM3-3B compiler script analyzes these explicit structural anchors incredibly well, allowing it to output highly accurate, informative text summaries for your automated media pipeline.Save this cheatsheet as a local reference, drop your first .md file into your /posts folder, and launch your creation live on the web! Let me know if you need help structuring your initial draft lines.
+When composing your first post about building the no-jsbs environment, use plenty of lists and clear code block frames. Your SmolLM3-3B compiler script analyzes these explicit structural anchors incredibly well, allowing it to output highly accurate, informative text summaries for your automated media pipeline.Save this cheatsheet as a local reference, drop your first .md file into your /posts folder, and launch your creation live on the web! 
