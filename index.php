@@ -22,7 +22,18 @@ $sidebar_results = $db->query("SELECT title, slug, url FROM search_index ORDER B
     <aside class="sidebar">
         <h2><a href="index.php">no-jsbs Dashboard</a></h2>
         <a href="feed.php" target="_blank" class="rss-link">📡 Subscribe via RSS XML</a>
-        
+        <header class="site-header">
+            <div class="logo">
+                <a href="index.php">No-jsbs</a>
+            </div>
+            <nav class="main-nav">
+                <!-- Clean, permanent entry point to your public timeline -->
+                <a href="https://x.com" target="_blank" rel="noopener noreferrer" class="nav-social">
+                    Follow Updates
+                </a>
+            </nav>
+        </header>
+
         <form method="GET" action="index.php" class="search-form">
             <input type="text" name="q" class="search-input" placeholder="Search summaries..." value="<?php echo htmlspecialchars($search ?? ''); ?>">
             <button type="submit" class="search-button">Search</button>
