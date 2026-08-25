@@ -55,7 +55,7 @@ def generate_static_rss_feed(db_path="site.db", posts_folder="posts", output_fil
         # 4. Populate standard RSS node attributes
         item = ET.SubElement(channel, "item")
         ET.SubElement(item, "title").text = post['title']
-        ET.SubElement(item, "link").text = f"{site_url}index.php?view={slug}"
+        ET.SubElement(item, "link").text = f"{site_url}/index.php?view={slug}"
         ET.SubElement(item, "description").text = post['description'] if post['description'] else post['title']
         
         # 5. Direct Raw Markdown Dump into the required content:encoded tag
@@ -71,7 +71,7 @@ def generate_static_rss_feed(db_path="site.db", posts_folder="posts", output_fil
             pub_date_str = datetime.now().strftime("%a, %d %b %Y %H:%M:%S GMT")
             
         ET.SubElement(item, "pubDate").text = pub_date_str
-        ET.SubElement(item, "guid").text = f"{site_url}index.php?view={slug}"
+        ET.SubElement(item, "guid").text = f"{site_url}/index.php?view={slug}"
 
     # 6. Generate text and clean string characters
     tree = ET.ElementTree(rss)
