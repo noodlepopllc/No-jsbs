@@ -16,17 +16,7 @@ $sidebar_results = $db->query("SELECT title, slug, url FROM search_index ORDER B
     <link rel="alternate" type="application/rss+xml" href="feed.php" title="RSS Feed">
 </head>
 <body>
-        <header class="site-header">
-            <div class="logo">
-                <a href="index.php">No-jsbs</a>
-            </div>
-            <nav class="main-nav">
-                <!-- Clean, permanent entry point to your public timeline -->
-                <a href="https://x.com" target="_blank" rel="noopener noreferrer" class="nav-social">
-                    Follow Updates
-                </a>
-            </nav>
-        </header>
+
 
 <div class="layout">
     <!-- 🎛️ SIDEBAR NAV PORTAL -->
@@ -75,6 +65,17 @@ $sidebar_results = $db->query("SELECT title, slug, url FROM search_index ORDER B
                 <article class="prose-content">
                     <?php echo $post['html_body']; ?>
                 </article>
+                <header class="site-header">
+                    <div class="logo">
+                        <a href="index.php">No-jsbs</a>
+                    </div>
+                    <nav class="main-nav">
+                        <!-- Clean, permanent entry point to your public timeline -->
+                        <a href="https://x.com" target="_blank" rel="noopener noreferrer" class="nav-social">
+                            Follow Updates
+                        </a>
+                    </nav>
+                </header>
             <?php else: ?>
                 <h1>Article Not Found</h1>
                 <p>The requested document content index could not be located inside the local SQLite table cache.</p>
