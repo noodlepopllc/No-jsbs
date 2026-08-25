@@ -14,6 +14,25 @@ device = "cuda" if torch.cuda.is_available() else "cpu"
 tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
 model = AutoModelForCausalLM.from_pretrained(MODEL_NAME).to(device)
 
+def convert_relative_to_absolute(html_content, base_url="http://yourwebsite.com"):
+    # Fix href attributes (e.g., href="index.php?view=slug")
+    # Matches href="anything" that doesn't start with http, https, or mailto:
+    html_content = re.sub(
+        r'href="(?!http|https|mailto:)([^"]+)"', 
+        f'href="{base_url}\\1"', 
+        html_content
+    )
+    
+    # Fix src attributes (e.g., src="images/photo.png")
+    html_content = re.sub(
+        r'src="(?!http|https)([^"]+)"', 
+        f'src="{base_url}\\1"', 
+        html_content
+    )
+    
+    return html_content
+
+
 def setup_database():
     conn = sqlite3.connect(DB_FILE)
     cursor = conn.cursor()

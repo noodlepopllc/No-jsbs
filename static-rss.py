@@ -81,4 +81,4 @@ def generate_static_rss_feed(db_path="site.db", output_file="feed.xml", site_url
     print(f"✓ Static RSS feed compiled using '{db_path}' -> {len(posts)} posts written to {output_file}")
 
 if __name__ == "__main__":
-    generate_static_rss_feed(siteurl='http://mywebsite.url')
+    generate_static_rss_feed(site_url='http://mywebsite.url')
