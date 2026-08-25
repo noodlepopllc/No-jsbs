@@ -215,14 +215,31 @@ body {
     overflow-x: auto;
     font-family: monospace;
     font-size: 0.9rem;
+    
+    /* Force structure constraints */
+    display: block;
+    white-space: pre;
 }
 
-.prose-content code {
+/* 1. Target only isolated standalone inline code snippets */
+.prose-content :not(pre) > code {
     background-color: var(--bg-canvas);
     padding: 2px 6px;
     border-radius: 4px;
     font-size: 0.9em;
+    display: inline;
 }
+
+/* 2. Reset properties for code tags sitting safely inside blocks */
+.prose-content pre code {
+    background-color: transparent; /* Prevent double background coloring */
+    padding: 0;                   /* Remove conflicting narrow padding */
+    border-radius: 0;
+    font-size: inherit;
+    display: block;
+    white-space: pre;             /* Preserve formatting linebreaks */
+}
+
 
 .prose-content img {
     max-width: 100%;
