@@ -1,0 +1,9 @@
+[project]
+name = "no-jsbs"
+version = "0.1.0"
+requires-python = ">=3.13"
+dependencies = [
+    "markdown>=3.10.3",
+    "torch>=2.13.0",
+    "transformers>=5.15.1",
+]
