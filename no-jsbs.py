@@ -81,6 +81,18 @@ Sitemap: {siteurl}'''
     if not robot.exists():
         robot.write_text(content)
 
+def compile_site(siteurl='yourwebsite.com'):
+    os.makedirs(POSTS_DIR, exist_ok=True)
+    os.makedirs(DOCS_DIR, exist_ok=True)
+    add_robot(siteurl)
+    conn = setup_database()
+    cursor = conn.cursor()
+    
+    files = [f for f in os.listdir(POSTS_DIR) if f.endswith('.md')]
+    if not files:
+        print("ℹ️ No markdown files found inside /posts.")
+        return
+
     for filename in files:
         slug = filename.replace('.md', '')
         url = f"docs/{slug}.html"
@@ -150,6 +162,7 @@ Sitemap: {siteurl}'''
             INSERT OR REPLACE INTO search_index (title, slug, url, description, keywords, html_body, is_rss, created_at)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?)
         """, (title, slug, url, summary, keywords, html_body_php, is_rss_visible, today_date))
+
         
     # Generate standalone index directory (docs/index.html) safely via unpacked tuples
     cursor.execute("SELECT title, url, description, created_at FROM search_index ORDER BY created_at DESC")
