@@ -4,8 +4,7 @@ import sqlite3
 import xml.etree.ElementTree as ET
 from datetime import datetime
 
-def generate_static_rss_feed(db_path="site.db", posts_folder="posts", output_file="feed.xml"):
-    site_url = "https://noodle-pop.com"
+def generate_static_rss_feed(db_path="site.db", posts_folder="posts", output_file="feed.xml", site_url=''):
     
     # 1. Connect to site.db and query rows from search_index
     conn = sqlite3.connect(db_path)
@@ -88,4 +87,5 @@ def generate_static_rss_feed(db_path="site.db", posts_folder="posts", output_fil
     print(f"✓ Static RSS feed compiled -> {len(posts)} posts cleanly configured for Chrome validation.")
 
 if __name__ == "__main__":
-    generate_static_rss_feed()
+    import sys
+    generate_static_rss_feed(site_url=sys.argv[1])
