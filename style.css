@@ -9,6 +9,9 @@
     --link-hover: #1d4ed8;
     --tag-bg: #dcfce7;
     --tag-text: #16a34a;
+    /* Added missing variables referenced in prose-content */
+    --bg-canvas: #f4f4f5;
+    --border-ui: #e4e4e7;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -22,6 +25,8 @@
         --link-hover: #3b82f6;
         --tag-bg: #14532d;
         --tag-text: #4ade80;
+        --bg-canvas: #27272a;
+        --border-ui: #3f3f46;
     }
 }
 
@@ -42,11 +47,13 @@ body {
 /* --- Dynamic Sidebar Frame --- */
 .sidebar {
     background-color: var(--bg-sidebar);
-    padding: 32px 24px;
+    padding: 24px; /* Slightly reduced from 32px 24px for better proportion */
     border-right: 1px solid var(--border-color);
     position: sticky;
     top: 0;
-    height: calc(100vh - 64px);
+    height: auto;      /* Shrinks to fit content instead of forcing height */
+    max-height: 100vh; /* Prevents it from exceeding the viewport */
+    overflow-y: auto;  /* Only scrolls if the list of links gets too long */
     display: flex;
     flex-direction: column;
 }
@@ -55,6 +62,7 @@ body {
     font-size: 1.25rem;
     margin: 0 0 16px 0;
     font-weight: 700;
+    margin-bottom: 12px; /* Was 16px */
 }
 
 .sidebar h2 a, .sidebar h3 a {
@@ -67,7 +75,7 @@ body {
     color: var(--link-color);
     text-decoration: none;
     font-size: 0.875rem;
-    margin-bottom: 24px;
+    margin-bottom: 16px;
 }
 
 .search-form {
@@ -215,13 +223,10 @@ body {
     overflow-x: auto;
     font-family: monospace;
     font-size: 0.9rem;
-    
-    /* Force structure constraints */
     display: block;
     white-space: pre;
 }
 
-/* 1. Target only isolated standalone inline code snippets */
 .prose-content :not(pre) > code {
     background-color: var(--bg-canvas);
     padding: 2px 6px;
@@ -230,16 +235,14 @@ body {
     display: inline;
 }
 
-/* 2. Reset properties for code tags sitting safely inside blocks */
 .prose-content pre code {
-    background-color: transparent; /* Prevent double background coloring */
-    padding: 0;                   /* Remove conflicting narrow padding */
+    background-color: transparent;
+    padding: 0;
     border-radius: 0;
     font-size: inherit;
     display: block;
-    white-space: pre;             /* Preserve formatting linebreaks */
+    white-space: pre;
 }
-
 
 .prose-content img {
     max-width: 100%;
@@ -268,9 +271,56 @@ body {
 }
 
 .nav-social:hover {
-    color: var(--text-main, #000);
+    color: var(--text-primary, #000);
     border-bottom-color: currentColor;
 }
 
+/* =========================================
+   MOBILE RESPONSIVE ADDITIONS
+   ========================================= */
+@media (max-width: 768px) {
+    /* Stack layout vertically */
+    .layout {
+        grid-template-columns: 1fr;
+    }
 
+    /* Remove sticky positioning and fixed height on mobile */
+    .sidebar {
+        position: static;
+        height: auto;
+        border-right: none;
+        border-bottom: 1px solid var(--border-color);
+        padding: 24px 16px;
+    }
 
+    /* Reduce main panel padding for smaller screens */
+    .main-panel {
+        padding: 32px 16px;
+    }
+
+    /* Scale down large headings slightly */
+    .main-panel h1 {
+        font-size: 1.75rem;
+    }
+
+    /* Prevent header elements from crowding */
+    .site-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 16px;
+    }
+}
+
+@media (max-width: 480px) {
+    /* Stack search form vertically on very small screens */
+    .search-form {
+        flex-direction: column;
+    }
+
+    /* Ensure minimum 44px touch targets for mobile accessibility */
+    .search-input,
+    .search-button {
+        width: 100%;
+        min-height: 44px;
+    }
+}
