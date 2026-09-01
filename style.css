@@ -2,6 +2,12 @@
 *, *::before, *::after {
     box-sizing: border-box;
 }
+/* === FOOLPROOF MOBILE SAFEGUARD === */
+html, body {
+    max-width: 100vw;
+    overflow-x: hidden;
+    -webkit-text-size-adjust: 100%; /* Prevents iOS from auto-zooming text */
+}
 :root {
     --bg-main: #ffffff;
     --bg-sidebar: #f4f4f5;
@@ -152,6 +158,11 @@ body {
     max-width: 90%; /* Leaves a 5% gutters on left/right, scales to any DPI */
     margin: 0 auto; /* Centers the content */
     padding: 48px 0; /* Vertical padding only; horizontal is handled by the 90% width */
+}
+
+/* Hide the redundant title injected by the PHP template */
+.main-panel > h1:first-child {
+    display: none;
 }
 
 .main-panel h1 {
@@ -321,4 +332,57 @@ body {
         width: 100%;
         min-height: 44px;
     }
+}
+
+/* =========================================
+   CONTENT OVERFLOW PROTECTION (MARKDOWN)
+   ========================================= */
+
+/* 1. The Grid Gotcha Fix: Allow the main panel to shrink below its content size */
+.main-panel {
+    min-width: 0; /* CRITICAL: Prevents long code blocks from stretching the grid */
+    overflow-wrap: break-word; /* Forces long URLs/words to wrap */
+    word-wrap: break-word; /* Legacy support */
+}
+
+/* 2. Force all text content to wrap safely */
+.prose-content {
+    overflow-wrap: break-word;
+    word-break: break-word;
+    hyphens: auto;
+}
+
+/* 3. Contain code blocks so they scroll internally instead of stretching the page */
+.prose-content pre,
+.prose-content .codehilite, /* Python Markdown wrapper */
+.prose-content .highlight {  /* Common alternative wrapper */
+    max-width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+    box-sizing: border-box;
+}
+
+/* 4. Ensure inline code doesn't push boundaries */
+.prose-content code {
+    max-width: 100%;
+    white-space: pre-wrap; /* Allows wrapping inside inline code if needed */
+    word-break: break-all;
+}
+
+/* 5. Nuclear option for any rogue images or iframes in the content */
+.prose-content img,
+.prose-content iframe,
+.prose-content table {
+    max-width: 100%;
+    width: 100%;
+    height: auto;
+    display: block;
+    box-sizing: border-box;
+}
+
+/* 6. Ensure tables don't break layout */
+.prose-content table {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
 }
